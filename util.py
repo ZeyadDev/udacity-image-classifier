@@ -181,7 +181,7 @@ def load_model_checkpoint(file_path, device):
     learning_rate = checkpoint['learning_rate']
 
     model, _, __ = construct_model(arch, device, hidden_units, learning_rate, model_state_dict, optimizer_state_dict)
-    
+
     return model, class_to_idx
 
 
@@ -215,8 +215,8 @@ def process_image(image):
 
     np_image = (image_arr-mean) / standard_dev
 
-    np_image = np_image.transpose(2, 0, 1)
-
+    np_image = np_image.transpose((2, 0, 1))
+    np_image = torch.from_numpy(np_image)
     return np_image
 
 
@@ -225,16 +225,15 @@ def predict(model, image_path, device, class_to_idx, topk=5):
     '''
     # TODO: Implement the code to predict the class from an image file
 
-    model.to('cpu')
+    model = model.to(device)
 
     unpreprocessed_image = Image.open(image_path)
 
-    image = process_image(unpreprocessed_image)
+    img_torch = process_image(unpreprocessed_image)
 
-    img_torch = torch.from_numpy(image)
     img_torch = img_torch.unsqueeze_(0)
     img_torch = img_torch.float()
-    img_torch.to('cpu')
+    img_torch = img_torch.to(device)
 
 
     log_probs = model(img_torch)
